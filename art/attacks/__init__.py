@@ -15,6 +15,7 @@ from art.attacks.saliency_map import SaliencyMapMethod
 from art.attacks.spatial_transformation import SpatialTransformation
 from art.attacks.poisoning_attack_svm import PoisoningAttackSVM
 from art.attacks.universal_perturbation import UniversalPerturbation
+from art.attacks.targeted_universal_perturbation import TargetedUniversalPerturbation
 from art.attacks.virtual_adversarial import VirtualAdversarialMethod
 from art.attacks.zoo import ZooAttack
 from art.attacks.hop_skip_jump import HopSkipJump
