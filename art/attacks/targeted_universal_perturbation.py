@@ -186,6 +186,9 @@ class TargetedUniversalPerturbation(Attack):
                 fooling_rate_tmp = fooling_rate
                 noise_tmp = noise
 
+            print('\tfr:{} tsr:{} nb_attack:{} nb_update:{}'.format(
+                int(fooling_rate*100), int(targeted_success_rate*100), nb_attack, nb_update))
+
         self.fooling_rate = fooling_rate_tmp  # fooling_rate
         self.converged = nb_iter < self.max_iter
         self.noise = noise_tmp  # noise
