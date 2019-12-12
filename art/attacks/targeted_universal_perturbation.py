@@ -118,6 +118,7 @@ class TargetedUniversalPerturbation(Attack):
         normInf = 0
         nb_update = -1  # init
         targeted_success_rate_tmp = 0
+        fooling_rate_tmp = 0
         noise_tmp = 0
 
         # Instantiate the middle attacker and get the predicted labels
@@ -182,9 +183,10 @@ class TargetedUniversalPerturbation(Attack):
                 y_adv == np.argmax(y, axis=1)) / nb_instances
             if targeted_success_rate > targeted_success_rate_tmp:
                 targeted_success_rate_tmp = targeted_success_rate
+                fooling_rate_tmp = fooling_rate
                 noise_tmp = noise
 
-        self.fooling_rate = fooling_rate
+        self.fooling_rate = fooling_rate_tmp  # fooling_rate
         self.converged = nb_iter < self.max_iter
         self.noise = noise_tmp  # noise
         logger.info(
