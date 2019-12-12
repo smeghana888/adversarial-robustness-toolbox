@@ -32,6 +32,8 @@ from art.classifiers.classifier import ClassifierNeuralNetwork, ClassifierGradie
 from art.attacks.attack import Attack
 from art.utils import projection
 
+from tqdm import tqdm
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,7 +55,8 @@ class UniversalPerturbation(Attack):
                     'jsma': 'art.attacks.saliency_map.SaliencyMapMethod',
                     'vat': 'art.attacks.virtual_adversarial.VirtualAdversarialMethod'
                     }
-    attack_params = Attack.attack_params + ['attacker', 'attacker_params', 'delta', 'max_iter', 'eps', 'norm']
+    attack_params = Attack.attack_params + \
+        ['attacker', 'attacker_params', 'delta', 'max_iter', 'eps', 'norm']
 
     def __init__(self, classifier, attacker='deepfool', attacker_params=None, delta=0.2, max_iter=20, eps=10.0,
                  norm=np.inf):
@@ -102,7 +105,8 @@ class UniversalPerturbation(Attack):
         :return: An array holding the adversarial examples.
         :rtype: `np.ndarray`
         """
-        logger.info('Computing universal perturbation based on %s attack.', self.attacker)
+        logger.info(
+            'Computing universal perturbation based on %s attack.', self.attacker)
 
         # Init universal perturbation
         noise = 0
@@ -114,23 +118,34 @@ class UniversalPerturbation(Attack):
         pred_y = self.classifier.predict(x, batch_size=1)
         pred_y_max = np.argmax(pred_y, axis=1)
 
+        norm2 = 0
+        normInf = 0
+        nb_update = -1  # init
+        fooling_rate_tmp = 0
+        noise_tmp = 0
+
         # Start to generate the adversarial examples
         nb_iter = 0
-        while fooling_rate < 1. - self.delta and nb_iter < self.max_iter:
+        while fooling_rate < 1. - self.delta and nb_iter < self.max_iter and nb_update != 0:
             # Go through all the examples randomly
             rnd_idx = random.sample(range(nb_instances), nb_instances)
 
+            pbar = tqdm(total=len(rnd_idx))
+            nb_attack = 0
+            nb_update = 0
             # Go through the data set and compute the perturbation increments sequentially
             for j, ex in enumerate(x[rnd_idx]):
                 x_i = ex[None, ...]
 
-                current_label = np.argmax(self.classifier.predict(x_i + noise)[0])
+                current_label = np.argmax(
+                    self.classifier.predict(x_i + noise)[0])
                 original_label = np.argmax(pred_y[rnd_idx][j])
 
                 if current_label == original_label:
                     # Compute adversarial perturbation
                     adv_xi = attacker.generate(x_i + noise)
                     new_label = np.argmax(self.classifier.predict(adv_xi)[0])
+                    nb_attack += 1
 
                     # If the class has changed, update v
                     if current_label != new_label:
@@ -138,6 +153,17 @@ class UniversalPerturbation(Attack):
 
                         # Project on L_p ball
                         noise = projection(noise, self.eps, self.norm)
+
+                        normTmp = noise.reshape((noise.shape[0], -1))
+                        norm2 = np.linalg.norm(normTmp, axis=1)[0]
+                        normInf = abs(normTmp).max()
+                        nb_update += 1
+
+                pbar.set_description(
+                    "up_iter:{}/{} img:{}/{} L2:{:.2E} Linf:{:.2E}".format(nb_iter+1, self.max_iter, j+1, len(rnd_idx), norm2, normInf))
+                pbar.update(1)
+
+            pbar.close()
             nb_iter += 1
 
             # Apply attack and clip
@@ -147,13 +173,18 @@ class UniversalPerturbation(Attack):
                 x_adv = np.clip(x_adv, clip_min, clip_max)
 
             # Compute the error rate
-            y_adv = np.argmax(self.classifier.predict(x_adv, batch_size=1), axis=1)
+            y_adv = np.argmax(self.classifier.predict(
+                x_adv, batch_size=1), axis=1)
             fooling_rate = np.sum(pred_y_max != y_adv) / nb_instances
+            if fooling_rate > fooling_rate_tmp:
+                fooling_rate_tmp = fooling_rate
+                noise_tmp = noise
 
-        self.fooling_rate = fooling_rate
+        self.fooling_rate = fooling_rate_tmp  # fooling_rate
         self.converged = nb_iter < self.max_iter
-        self.noise = noise
-        logger.info('Success rate of universal perturbation attack: %.2f%%', fooling_rate)
+        self.noise = noise_tmp  # noise
+        logger.info(
+            'Success rate of universal perturbation attack: %.2f%%', fooling_rate)
 
         return x_adv
 
@@ -178,10 +209,12 @@ class UniversalPerturbation(Attack):
         super(UniversalPerturbation, self).set_params(**kwargs)
 
         if not isinstance(self.delta, (float, int)) or self.delta < 0 or self.delta > 1:
-            raise ValueError("The desired accuracy must be in the range [0, 1].")
+            raise ValueError(
+                "The desired accuracy must be in the range [0, 1].")
 
         if not isinstance(self.max_iter, (int, np.int)) or self.max_iter <= 0:
-            raise ValueError("The number of iterations must be a positive integer.")
+            raise ValueError(
+                "The number of iterations must be a positive integer.")
 
         if not isinstance(self.eps, (float, int)) or self.eps <= 0:
             raise ValueError("The eps coefficient must be a positive float.")
