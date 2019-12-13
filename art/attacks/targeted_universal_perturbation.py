@@ -163,7 +163,7 @@ class TargetedUniversalPerturbation(Attack):
                         nb_update += 1
 
                 pbar.set_description(
-                    "up_iter:{}/{} img:{}/{} L2:{:.2E} Linf:{:.2E}".format(nb_iter+1, self.max_iter, j+1, len(rnd_idx), norm2, normInf))
+                    "up_iter:{}/{} img:{}/{} L2:{:.4E} Linf:{:.4E}".format(nb_iter+1, self.max_iter, j+1, len(rnd_idx), norm2, normInf))
                 pbar.update(1)
 
             pbar.close()
@@ -189,7 +189,7 @@ class TargetedUniversalPerturbation(Attack):
             print('\tfr:{} tsr:{} nb_attack:{} nb_update:{}'.format(
                 int(fooling_rate*100), int(targeted_success_rate*100), nb_attack, nb_update))
 
-        self.fooling_rate = fooling_rate_tmp  # fooling_rate
+        self.fooling_rate = targeted_success_rate_tmp  # fooling_rate
         self.converged = nb_iter < self.max_iter
         self.noise = noise_tmp  # noise
         logger.info(
