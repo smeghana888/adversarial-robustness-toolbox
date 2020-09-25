@@ -38,7 +38,7 @@ class PoisoningAttackSVM(Attack):
     """
     attack_params = ['classifier', 'step', 'eps', 'x_train', 'y_train', 'x_val', 'y_val']
 
-    def __init__(self, classifier, step, eps, x_train, y_train, x_val, y_val, max_iter=100, **kwargs):
+    def __init__(self, classifier, step, eps, x_train, y_train, x_val, y_val, max_iter=10, **kwargs):
         """
         Initialize an SVM poisoning attack
 
