@@ -91,7 +91,10 @@ class SpatialTransformation(Attack):
                              'dimensions.')
 
         if self.attack_trans_x is None or self.attack_trans_y is None or self.attack_rot is None:
-
+            print("in attack trans")
+            print(self.attack_trans_x)
+            print(self.attack_trans_y)
+            print(self.attack_rot)
             y_pred = self.classifier.predict(x, batch_size=1)
             y_pred_max = np.argmax(y_pred, axis=1)
 
@@ -152,6 +155,7 @@ class SpatialTransformation(Attack):
             logger.info('Attack-rotation: %.2f%%', self.attack_rot)
 
         else:
+            print(in else)
             x_adv = self._perturb(x, self.attack_trans_x, self.attack_trans_y, self.attack_rot)
 
         return x_adv
