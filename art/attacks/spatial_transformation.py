@@ -103,12 +103,20 @@ class SpatialTransformation(Attack):
             # Determine grids
             max_num_pixel_trans_x = int(round((x.shape[1] * self.max_translation / 100.0)))
             max_num_pixel_trans_y = int(round((x.shape[2] * self.max_translation / 100.0)))
+            
+            print(max_num_pixel_trans_x, "max pixels x" )
+            print(max_num_pixel_trans_y, "max pixels y" )
 
             grid_trans_x = [int(round(g)) for g in
                             list(np.linspace(-max_num_pixel_trans_x, max_num_pixel_trans_x, num=self.num_translations))]
             grid_trans_y = [int(round(g)) for g in
                             list(np.linspace(-max_num_pixel_trans_y, max_num_pixel_trans_y, num=self.num_translations))]
             grid_rot = list(np.linspace(-self.max_rotation, self.max_rotation, num=self.num_rotations))
+            
+            print(grid_trans_x, "grid-trans-x")
+            print(grid_trans_y, "grid-trans-y")
+            print(grid_rot, "grid-rot")
+            
 
             # Remove duplicates
             grid_trans_x = list(set(grid_trans_x))
@@ -118,6 +126,11 @@ class SpatialTransformation(Attack):
             grid_trans_x.sort()
             grid_trans_y.sort()
             grid_rot.sort()
+            
+            print("after removig duplicates and sorting")
+            print(grid_trans_x)
+            print(grid_trans_y)
+            print(grid_rot)
 
             # Search for worst case
             fooling_rate = 0.0
@@ -162,6 +175,7 @@ class SpatialTransformation(Attack):
 
     def _perturb(self, x, trans_x, trans_y, rot):
         if self.classifier.channel_index == 3:
+            print("shift and rotate")
             x_adv = shift(x, [0, trans_x, trans_y, 0])
             x_adv = rotate(x_adv, angle=rot, axes=(1, 2), reshape=False)
         elif self.classifier.channel_index == 1:
