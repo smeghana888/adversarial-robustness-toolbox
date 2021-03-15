@@ -155,7 +155,7 @@ class TensorFlowClassifier(ClassifierNeuralNetwork, ClassifierGradients, Classif
         # Check if train and output_ph available
         if self._train is None or self._labels_ph is None:
             raise ValueError("Need the training objective and the output placeholder to train the model.")
-
+        print("before preprocessing")
         # Apply preprocessing
         x_preprocessed, y_preprocessed = self._apply_preprocessing(x, y, fit=True)
 
