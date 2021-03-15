@@ -131,7 +131,10 @@ class SpatialTransformation(Attack):
             print(grid_trans_x)
             print(grid_trans_y)
             print(grid_rot)
-
+            
+            grid_trans_x = [-48]
+            grid_rot = [30]
+            
             # Search for worst case
             fooling_rate = 0.0
             x_adv = np.copy(x)
