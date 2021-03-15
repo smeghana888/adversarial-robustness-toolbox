@@ -161,7 +161,7 @@ class TensorFlowClassifier(ClassifierNeuralNetwork, ClassifierGradients, Classif
 
         num_batch = int(np.ceil(len(x_preprocessed) / float(batch_size)))
         ind = np.arange(len(x_preprocessed))
-
+        print("before start training")
         # Start training
         for _ in range(nb_epochs):
             # Shuffle the examples
@@ -173,9 +173,10 @@ class TensorFlowClassifier(ClassifierNeuralNetwork, ClassifierGradients, Classif
                 o_batch = y_preprocessed[ind[m * batch_size:(m + 1) * batch_size]]
 
                 # Create feed_dict
+                print("before feed dict")
                 feed_dict = {self._input_ph: i_batch, self._labels_ph: o_batch}
                 feed_dict.update(self._feed_dict)
-
+                print("before run")
                 # Run train step
                 self._sess.run(self._train, feed_dict=feed_dict)
 
