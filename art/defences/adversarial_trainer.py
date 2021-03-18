@@ -156,7 +156,9 @@ class AdversarialTrainer:
                     x_batch[adv_ids] = x_adv
 
                 # Fit batch
+                print("before classifier .fit")
                 self.classifier.fit(x_batch, y_batch, nb_epochs=1, batch_size=x_batch.shape[0], **kwargs)
+                print("after classifier .fit")
                 attack_id = (attack_id + 1) % len(self.attacks)
 
     def fit(self, x, y, batch_size=128, nb_epochs=20, **kwargs):
